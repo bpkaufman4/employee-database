@@ -59,7 +59,7 @@ var viewAllRoles = function() {
             console.table(results);
         }
     );
-}
+};
 
 var addDepartment = function(data) {
     const sql = `INSERT INTO department (name)
@@ -70,9 +70,9 @@ var addDepartment = function(data) {
         if (err) {
             console.log(err);
         }
-        console.table(results);
-    })
-}
+        console.table('department has been successfully added.');
+    });
+};
 
 var addRole = function(data) {
     const sql = `INSERT INTO role (title, salary, department_id)
@@ -83,9 +83,35 @@ var addRole = function(data) {
         if (err) {
             console.log(err);
         }
-        console.table(results);
-    })
-}
+        console.table('Role has successfully been added.');
+    });
+};
+
+var addEmployee = function(data) {
+    const sql = `INSERT INTO employee (first_name, last_name, role_id, manager_id)
+    VALUES (?,?,?,?)`;
+    const params = [data.add_employee_first_name, data.add_employee_last_name, data.add_employee_role_id, data.add_employee_manager_id];
+
+    db.query(sql, params, (err, results) => {
+        if (err) {
+            console.log(err);
+        }
+        console.log('Employee has been successfully added.');
+    });
+};
+
+var updateEmployeeRole = function(data) {
+    const sql = `UPDATE employee SET role_id = ?
+                WHERE id = ?`;
+    const params = [data.updated_role_id, data.select_employee];
+
+    db.query(sql, params, (err, results) => {
+        if (err) {
+            console.log(err);
+        }
+        console.log('Employee role has been successfully updated');
+    });
+};
 
 // viewAllEmployees();
 // viewAllDepartments();
@@ -98,10 +124,10 @@ var promptUser = function() {
                 type: 'list',
                 name: 'options',
                 message: 'What would you like to do?',
-                choices: ['View all departments', 'View all roles', 'View all employees', 'Add a department', 'Add a role', 'Update an employee role']
+                choices: ['View all departments', 'View all roles', 'View all employees', 'Add a department', 'Add a role', 'Add an employee', 'Update an employee role']
             }
         ]
-    )
+    );
 };
 
 var promptAddDepartment = function() {
@@ -113,8 +139,8 @@ var promptAddDepartment = function() {
                 message: 'What is the department name?'
             }
         ]
-    )
-}
+    );
+};
 
 var promptAddRole = function() {
     return inquirer.prompt(
@@ -135,13 +161,56 @@ var promptAddRole = function() {
                 message: 'What is the department id of this role?'
             }
         ]
-    )
-}
+    );
+};
 
+var promptAddEmployee = function() {
+    return inquirer.prompt(
+        [
+            {
+                type: 'input',
+                name: 'add_employee_first_name',
+                message: 'What is the first name of the new employee?'
+            },
+            {
+                type: 'input',
+                name: 'add_employee_last_name',
+                message: 'What is the last name of the new employee?'
+            },
+            {
+                type: 'input',
+                name: 'add_employee_role_id',
+                message: 'What is the role id of the new employee?'
+            },
+            {
+                type: 'input',
+                name: 'add_employee_manager_id',
+                message: 'What is the manager id of the new employee?'
+            }
+        ]
+    );
+};
+
+var promptUpdateEmployeeRole = function() {
+    return inquirer.prompt(
+        [
+            {
+                type: 'input',
+                name: 'select_employee',
+                message: 'What is the id of the employee you wish to change?'
+            },
+            {
+                type: 'input',
+                name: 'updated_role_id',
+                message: 'What is the id of their new role?'
+            }
+        ]
+    );
+};
 
 promptUser()
     .then(inputData => {
-        console.log(inputData);
+        // console.log(inputData);
         if (inputData.options === 'View all employees') {
             viewAllEmployees();
         } else if (inputData.options === 'View all roles') {
@@ -151,14 +220,26 @@ promptUser()
         } else if (inputData.options === 'Add a department') {
             promptAddDepartment()
                 .then(newDepartmentData => {
-                    console.log(newDepartmentData.add_department);
+                    // console.log(newDepartmentData.add_department);
                     addDepartment(newDepartmentData.add_department);
                 });
         } else if (inputData.options === 'Add a role') {
             promptAddRole()
                 .then(newRoleData => {
-                    console.log(newRoleData);
+                    // console.log(newRoleData);
                     addRole(newRoleData);
+                });
+        } else if (inputData.options === 'Add an employee') {
+            promptAddEmployee()
+                .then(newEmployeeData => {
+                    // console.log(newEmployeeData);
+                    addEmployee(newEmployeeData);
+                });
+        } else if (inputData.options === 'Update an employee role') {
+            promptUpdateEmployeeRole()
+                .then(newEmployeeRoleData => {
+                    // console.log(newEmployeeRoleData);
+                    updateEmployeeRole(newEmployeeRoleData);
                 });
         }
     });
